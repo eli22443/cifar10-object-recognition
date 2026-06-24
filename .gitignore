@@ -16,13 +16,15 @@ data/
 checkpoints/
 figures/
 results/
-lecture_code/
+
+# Course reference materials (keep locally, not in repo)
 Lectures/
+lecture_code/
+/*.pdf
 
 # Submission build outputs
 report.pdf
 code.zip
-*.pdf
 
 # OS / editor
 .DS_Store
