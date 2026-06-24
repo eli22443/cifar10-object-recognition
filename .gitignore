@@ -16,6 +16,8 @@ data/
 checkpoints/
 figures/
 results/
+lecture_code/
+Lectures/
 
 # Submission build outputs
 report.pdf
