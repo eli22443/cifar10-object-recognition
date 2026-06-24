@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple, cast
 
+import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,7 +16,7 @@ from torch.optim.optimizer import Optimizer
 from torch.optim.sgd import SGD
 from torch.utils.data import DataLoader
 
-from cifar_cnn import DEFAULT_EPOCHS, DEFAULT_LR, DEFAULT_MOMENTUM, EpochMetrics, Net
+from cifar_cnn import DEFAULT_EPOCHS, DEFAULT_LR, DEFAULT_MOMENTUM, Net, denormalize
 
 
 DEFAULT_LAMBDA = 0.1
@@ -34,7 +38,7 @@ class DeconvEpochMetrics:
 def reconstruction_loss(recon: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     """Mean per-channel MSE, averaged over RGB channels."""
     channel_losses = [F.mse_loss(recon[:, c], target[:, c]) for c in range(3)]
-    return sum(channel_losses) / 3.0
+    return torch.stack(channel_losses).mean()
 
 
 class DeconvNet(nn.Module):
@@ -203,3 +207,85 @@ def collect_reconstructions(
                 break
 
     return torch.cat(originals)[:max_images], torch.cat(recons)[:max_images]
+
+
+def get_sample_image(loader: DataLoader, index: int = 0) -> Tuple[torch.Tensor, int]:
+    """Return one image/label pair from a dataloader's underlying dataset."""
+    image, label = loader.dataset[index]
+    return image, label
+
+
+def mask_single_channel(features: torch.Tensor, channel: int) -> torch.Tensor:
+    masked = torch.zeros_like(features)
+    masked[:, channel] = features[:, channel]
+    return masked
+
+
+@torch.no_grad()
+def encode_image(
+    model: DeconvNet,
+    image: torch.Tensor,
+    device: torch.device,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    model.eval()
+    if image.dim() == 3:
+        image = image.unsqueeze(0)
+    image = image.to(device)
+    _, _, z1, z2, idx1, idx2 = model(image)
+    return image.cpu(), z1, z2, idx1, idx2
+
+
+@torch.no_grad()
+def reconstruct_z1_channels(
+    model: DeconvNet,
+    z1: torch.Tensor,
+    idx1: torch.Tensor,
+) -> List[torch.Tensor]:
+    model.eval()
+    return [
+        model.decode_from_z1(mask_single_channel(z1, channel), idx1).cpu()
+        for channel in range(z1.shape[1])
+    ]
+
+
+@torch.no_grad()
+def reconstruct_z2_channels(
+    model: DeconvNet,
+    z2: torch.Tensor,
+    idx1: torch.Tensor,
+    idx2: torch.Tensor,
+    channels: Sequence[int],
+) -> List[torch.Tensor]:
+    model.eval()
+    return [
+        model.decode_from_z2(mask_single_channel(z2, channel), idx1, idx2).cpu()
+        for channel in channels
+    ]
+
+
+def plot_channel_ablation(
+    original: torch.Tensor,
+    reconstructions: Sequence[torch.Tensor],
+    channel_labels: Sequence[str],
+    title: str,
+) -> None:
+    """Plot original image followed by per-channel reconstructions."""
+    n = len(reconstructions)
+    fig, axes_raw = plt.subplots(1, n + 1, figsize=(2.0 * (n + 1), 2.2))
+    figure = cast(Figure, fig)
+    axes = cast(List[Axes], list(np.atleast_1d(axes_raw).ravel()))
+
+    orig = denormalize(original).numpy().transpose(1, 2, 0)
+    axes[0].imshow(np.clip(orig, 0, 1))
+    axes[0].set_title("Original", fontsize=9)
+    axes[0].axis("off")
+
+    for idx, (recon, label) in enumerate(zip(reconstructions, channel_labels), start=1):
+        img = denormalize(recon[0]).numpy().transpose(1, 2, 0)
+        axes[idx].imshow(np.clip(img, 0, 1))
+        axes[idx].set_title(label, fontsize=9)
+        axes[idx].axis("off")
+
+    figure.suptitle(title, fontsize=11)
+    figure.tight_layout()
+    plt.show()
