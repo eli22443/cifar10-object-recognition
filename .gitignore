@@ -22,6 +22,7 @@ Lectures/
 # Submission build outputs
 report.pdf
 code.zip
+*.pdf
 
 # OS / editor
 .DS_Store
