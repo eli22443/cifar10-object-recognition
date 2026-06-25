@@ -16,6 +16,7 @@ data/
 checkpoints/
 figures/
 results/
+BACKUP/
 
 # Course reference materials (keep locally, not in repo)
 Lectures/
@@ -33,3 +34,4 @@ Thumbs.db
 .vscode/
 *.swp
 *~
+/*.sh

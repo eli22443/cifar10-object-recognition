@@ -178,11 +178,12 @@ def train_deconv_model(
             test_acc=test_acc,
         )
         history.append(metrics)
-        print(
-            f"Epoch {epoch:02d}/{epochs} | "
-            f"train acc {100 * train_acc:.1f}% | test acc {100 * test_acc:.1f}% | "
-            f"train rec {train_rec:.4f} | test rec {test_rec:.4f}"
-        )
+        if epoch == 1 or epoch % 10 == 0 or epoch == epochs:
+            print(
+                f"Epoch {epoch:02d}/{epochs} | "
+                f"train acc {100 * train_acc:.1f}% | test acc {100 * test_acc:.1f}% | "
+                f"train rec {train_rec:.4f} | test rec {test_rec:.4f}"
+            )
 
     return history
 

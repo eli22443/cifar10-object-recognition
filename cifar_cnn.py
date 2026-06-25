@@ -194,11 +194,12 @@ def train_model(
             test_acc=test_acc,
         )
         history.append(metrics)
-        print(
-            f"Epoch {epoch:02d}/{epochs} | "
-            f"train loss {train_loss:.3f} acc {100 * train_acc:.1f}% | "
-            f"test loss {test_loss:.3f} acc {100 * test_acc:.1f}%"
-        )
+        if epoch == 1 or epoch % 10 == 0 or epoch == epochs:
+            print(
+                f"Epoch {epoch:02d}/{epochs} | "
+                f"train loss {train_loss:.3f} acc {100 * train_acc:.1f}% | "
+                f"test loss {test_loss:.3f} acc {100 * test_acc:.1f}%"
+            )
 
     return history
 
