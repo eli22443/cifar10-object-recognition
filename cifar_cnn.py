@@ -16,7 +16,16 @@ from torch.optim.sgd import SGD
 from torch.utils.data import DataLoader, Subset
 
 CIFAR10_CLASSES = (
-    "plane", "car", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck",
+    "plane",
+    "car",
+    "bird",
+    "cat",
+    "deer",
+    "dog",
+    "frog",
+    "horse",
+    "ship",
+    "truck",
 )
 DEFAULT_DATA_ROOT = "./data"
 DEFAULT_TRAIN_SUBSET = 6000
@@ -78,15 +87,23 @@ def make_dataloaders(
     batch_size: int = DEFAULT_BATCH_SIZE,
     seed: int = 42,
 ) -> Tuple[DataLoader, DataLoader]:
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-    ])
+    transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ]
+    )
     trainset = torchvision.datasets.CIFAR10(
-        root=data_root, train=True, download=False, transform=transform,
+        root=data_root,
+        train=True,
+        download=True,
+        transform=transform,
     )
     testset = torchvision.datasets.CIFAR10(
-        root=data_root, train=False, download=False, transform=transform,
+        root=data_root,
+        train=False,
+        download=True,
+        transform=transform,
     )
     if train_subset_size is not None and train_subset_size < len(trainset):
         indices = random.Random(seed).sample(range(len(trainset)), train_subset_size)
@@ -137,7 +154,9 @@ def train_model(
     optimizer = SGD(model.parameters(), lr=lr, momentum=momentum)
     history: List[EpochMetrics] = []
     for epoch in range(1, epochs + 1):
-        train_loss, train_acc = _run_epoch(model, trainloader, criterion, device, optimizer)
+        train_loss, train_acc = _run_epoch(
+            model, trainloader, criterion, device, optimizer
+        )
         test_loss, test_acc = _run_epoch(model, testloader, criterion, device)
         history.append(EpochMetrics(epoch, train_loss, train_acc, test_loss, test_acc))
         if epoch == 1 or epoch % 10 == 0 or epoch == epochs:
@@ -150,7 +169,9 @@ def train_model(
 
 
 def per_class_accuracy(
-    model: nn.Module, loader: DataLoader, device: torch.device,
+    model: nn.Module,
+    loader: DataLoader,
+    device: torch.device,
 ) -> Dict[str, float]:
     model.eval()
     correct = torch.zeros(10, dtype=torch.long)
