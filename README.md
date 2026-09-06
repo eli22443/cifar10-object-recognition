@@ -1,14 +1,14 @@
 # Object Recognition on CIFAR-10
 
-Applied Deep Learning coursework (HW4) — CNN classifier with deconvolutional reconstruction.
+Applied Deep Learning coursework — CNN classifier with deconvolutional reconstruction.
 
 This project trains a convolutional neural network for object recognition on [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html) (10 classes: plane, car, bird, cat, deer, dog, frog, horse, ship, truck), then extends the model with a deconvolutional decoder for image reconstruction and latent-feature analysis.
 
 ## What’s included
 
-| Task | Description |
-|------|-------------|
-| **1** | Train a CNN classifier (PyTorch CIFAR-10 tutorial architecture) on a 6,000-image training subset |
+| Phase | Description |
+|-------|-------------|
+| **1** | Train a CNN classifier on a 6,000-image training subset |
 | **2** | Add a deconvolutional decoder; jointly optimize classification and reconstruction |
 | **3** | Analyze reconstructions and latent features from the trained encoder–decoder model |
 
@@ -45,4 +45,4 @@ jupyter notebook report.ipynb
 
 ## License / academic use
 
-Coursework for Applied Deep Learning. Reuse for learning is fine; do not submit as your own assignment work.
+Coursework for Applied Deep Learning. Reuse for learning is fine; do not submit it as your own work.

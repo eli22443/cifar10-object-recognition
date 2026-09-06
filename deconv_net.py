@@ -1,4 +1,4 @@
-"""Deconvolutional CIFAR-10 model for ADL HW4 Task 2–3."""
+"""Deconvolutional CIFAR-10 model (Phases 2–3)."""
 
 from __future__ import annotations
 

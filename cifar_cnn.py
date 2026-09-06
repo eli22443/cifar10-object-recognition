@@ -1,8 +1,9 @@
-"""CIFAR-10 CNN classifier utilities for ADL HW4 Task 1."""
+"""CIFAR-10 CNN classifier utilities (Phase 1)."""
 
 from __future__ import annotations
 
 import random
+import warnings
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
@@ -52,7 +53,7 @@ def denormalize(images: torch.Tensor) -> torch.Tensor:
 
 
 class Net(nn.Module):
-    """CNN from the PyTorch CIFAR-10 tutorial / Lecture 7."""
+    """Small CIFAR-10 CNN with two conv layers and three fully connected layers."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -93,18 +94,25 @@ def make_dataloaders(
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ]
     )
-    trainset = torchvision.datasets.CIFAR10(
-        root=data_root,
-        train=True,
-        download=True,
-        transform=transform,
-    )
-    testset = torchvision.datasets.CIFAR10(
-        root=data_root,
-        train=False,
-        download=True,
-        transform=transform,
-    )
+    # NumPy 2.4 warns when unpickling CIFAR's ancient dtype metadata (align=0).
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            category=np.exceptions.VisibleDeprecationWarning,
+            message=r".*dtype\(\): align.*",
+        )
+        trainset = torchvision.datasets.CIFAR10(
+            root=data_root,
+            train=True,
+            download=True,
+            transform=transform,
+        )
+        testset = torchvision.datasets.CIFAR10(
+            root=data_root,
+            train=False,
+            download=True,
+            transform=transform,
+        )
     if train_subset_size is not None and train_subset_size < len(trainset):
         indices = random.Random(seed).sample(range(len(trainset)), train_subset_size)
         trainset = Subset(trainset, indices)
