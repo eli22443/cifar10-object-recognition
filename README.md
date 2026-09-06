@@ -14,10 +14,9 @@ This project trains a convolutional neural network for object recognition on [CI
 
 **Source code**
 
+- [`report.ipynb`](report.ipynb) — full experiment notebook
 - [`cifar_cnn.py`](cifar_cnn.py) — CIFAR-10 data loading, CNN (`Net`), training utilities
 - [`deconv_net.py`](deconv_net.py) — `DeconvNet` encoder–classifier–decoder and training helpers
-- [`report.ipynb`](report.ipynb) — full experiment notebook
-- [`report.pdf`](report.pdf) — exported report
 
 ## Requirements
 
