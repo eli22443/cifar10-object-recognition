@@ -22,9 +22,9 @@ BACKUP/
 Lectures/
 lecture_code/
 /*.pdf
+!report.pdf
 
 # Submission build outputs
-report.pdf
 code.zip
 
 # OS / editor
